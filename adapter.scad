@@ -24,7 +24,7 @@ slot_525_height=41.53;
 adapter_length=100;
 
 wall_thickness_side=3;
-wall_thickness_bottom_top=10;
+wall_thickness_bottom_top=9;
 
 n_drives=6;
 
@@ -71,4 +71,24 @@ difference() {
             translate([drive_25_c,drive_25_width-$epsilon,drive_25_b]) rotate([-90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
         }
     }
+    
+    // Holes (reduce material usage)
+    translate([-$epsilon,(2*slot_525_height)/2,adapter_length/2]) rotate([0,90,0]) cylinder(r=30, h=wall_thickness_side+2*$epsilon);
+    translate([slot_525_width-$epsilon-wall_thickness_side,(2*slot_525_height)/2,adapter_length/2]) rotate([0,90,0]) cylinder(r=30, h=wall_thickness_side+2*$epsilon);
+    
+    // Cutout in fins (reduce material usage)
+    translate([wall_thickness_side,0,0])
+        #rotate([90,0,90])         
+       linear_extrude(height=slot_525_width-2*wall_thickness_side) 
+       polygon( points=[
+              [10,0],
+              [((2*slot_525_height)-drive_25_width)/2,10],
+              [((2*slot_525_height)-drive_25_width)/2,adapter_length-10],
+              [10,adapter_length],
+              [(2*slot_525_height)-10,adapter_length],
+              [((2*slot_525_height)-drive_25_width)/2+drive_25_width,adapter_length-10],
+              [((2*slot_525_height)-drive_25_width)/2+drive_25_width,10],
+              [(2*slot_525_height)-10,0],
+          ]
+       );
 }
