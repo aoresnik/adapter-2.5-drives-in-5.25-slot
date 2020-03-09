@@ -24,6 +24,9 @@ sff_8551_A14=21.84;
 slot_525_width=146.05;
 slot_525_height=41.53;
 
+square_nut_m3_s=6;
+square_nut_m3_d=1.6;
+
 adapter_length=100;
 
 wall_thickness_side=3;
@@ -34,7 +37,7 @@ n_drives=6;
 module bay_attachment_hole()
 {
     rotate([0,90,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
-    translate([wall_thickness_side-1.2+$epsilon, -8.4/2, -8.4/2]) cube([1.2+$epsilon, 8.4, 8.4]);
+    translate([wall_thickness_side-square_nut_m3_d+$epsilon, -square_nut_m3_s/2-0.1, -square_nut_m3_s/2-0.1]) cube([square_nut_m3_d+$epsilon, square_nut_m3_s+0.2, square_nut_m3_s+0.2]);
 }
 
 module bay_attachment_holes()
@@ -98,7 +101,7 @@ difference() {
     // Coutouts in top and bottom (reduce material usage)
     for ( i = [0 : (n_drives-2)] ){
         translate([wall_thickness_side + (i+1)*((slot_525_width-2*wall_thickness_side)/(n_drives+1)) + drive_25_height/2, 0, -$epsilon]) {
-            #hull() {
+            hull() {
                 translate([6,-$epsilon,80]) rotate([-90,0,0]) cylinder(r=6, h=2*slot_525_height+2*$epsilon);
                 translate([6,-$epsilon,20+6]) rotate([-90,0,0]) cylinder(r=6, h=2*slot_525_height+2*$epsilon);
             }
