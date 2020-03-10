@@ -1,36 +1,38 @@
 
-// TODO: a bit of slack to accomodate tolerances
-
+// Small distance added to compensate floating point problems when subtracting
 $epsilon=0.01;
+// Default round parts divisions
 $fn=20;
+// Slack to accomodate printing tolerances (try increasing if unable to fit drives
+// or unable to fit the adapter into the slot)
 $slack=0.2;
 
 // Source: https://doc.xdevs.com/doc/Seagate/SFF-8201.PDF
 
 // max width according to notes (A4+A5)
-drive_25_width=70.10;
-drive_25_height=9.50;
-drive_25_depth=100.45;
+drive_25_width=70.10 + $slack;
+drive_25_height=9.50 + $slack;
+drive_25_depth=100.45 + $slack;
 
-sff_8201_A52=14;
-sff_8201_A53=90.60;
-sff_8201_A23=3.60;
+sff_8201_A52=14 + $slack;
+sff_8201_A53=90.60 + $slack;
+sff_8201_A23=3.60 + $slack;
 
 // Source: https://doc.xdevs.com/doc/Seagate/SFF-8551.PDF
 
-sff_8551_A1=41.53;
-sff_8551_A2=42.30;
-sff_8551_A11=79.25;
-sff_8551_A13=10.00;
-sff_8551_A14=21.84;
+slot_525_width=146.05 - $slack;
+slot_525_height=41.53 - $slack;
 
-slot_525_width=146.05;
-slot_525_height=41.53;
+sff_8551_A1=41.53 + $slack;
+sff_8551_A2=42.30 + 0.2;
+sff_8551_A11=79.25 + $slack;
+sff_8551_A13=10.00 + $slack;
+sff_8551_A14=21.84 + $slack;
 
-square_nut_m3_s=6;
-square_nut_m3_d=1.6;
+square_nut_m3_s=6+$slack;
+square_nut_m3_d=1.6+$slack;
 
-adapter_length=100;
+adapter_length=drive_25_depth;
 
 wall_thickness_side=3;
 wall_thickness_bottom_top=9;
@@ -75,7 +77,10 @@ difference() {
     // Slots for drives
     for ( i = [0 : (n_drives-1)] ){
         translate([wall_thickness_side + (i+0.5)*slot_stride + drive_25_height/2, ((2*slot_525_height)-drive_25_width)/2, -$epsilon]) {
-            cube([drive_25_height, drive_25_width, drive_25_depth]);
+            // Drive
+            cube([drive_25_height, drive_25_width, drive_25_depth+2*$epsilon]);
+            
+            // Screw holes
             translate([sff_8201_A23,$epsilon,sff_8201_A52]) rotate([90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
             translate([sff_8201_A23,$epsilon,sff_8201_A53]) rotate([90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
             translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A52]) rotate([-90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
@@ -84,8 +89,8 @@ difference() {
     }
     
     // Holes (reduce material usage)
-    translate([-$epsilon,(2*slot_525_height)/2,adapter_length/2]) rotate([0,90,0]) cylinder(r=30, h=wall_thickness_side+2*$epsilon);
-    translate([slot_525_width-$epsilon-wall_thickness_side,(2*slot_525_height)/2,adapter_length/2]) rotate([0,90,0]) cylinder(r=30, h=wall_thickness_side+2*$epsilon);
+    translate([-$epsilon,(2*slot_525_height)/2,adapter_length/2]) rotate([0,90,0]) cylinder(r=30, h=wall_thickness_side+2*$epsilon, $fn=40);
+    translate([slot_525_width-$epsilon-wall_thickness_side,(2*slot_525_height)/2,adapter_length/2]) rotate([0,90,0]) cylinder(r=30, h=wall_thickness_side+2*$epsilon, $fn=40);
     
     // Cutout in fins (reduce material usage)
     translate([wall_thickness_side,0,0])
