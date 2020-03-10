@@ -4,16 +4,20 @@
 
 $epsilon=0.01;
 $fn=20;
+$slack=0.2;
 
-drive_25_width=70;
-drive_25_height=9;
-drive_25_depth=100.5;
+// Source: https://doc.xdevs.com/doc/Seagate/SFF-8201.PDF
 
-drive_25_a=14;
-drive_25_b=90.60;
-drive_25_c=3.60;
+// max width according to notes (A4+A5)
+drive_25_width=70.10;
+drive_25_height=9.50;
+drive_25_depth=100.45;
 
-// Source https://doc.xdevs.com/doc/Seagate/SFF-8551.PDF
+sff_8201_A52=14;
+sff_8201_A53=90.60;
+sff_8201_A23=3.60;
+
+// Source: https://doc.xdevs.com/doc/Seagate/SFF-8551.PDF
 
 sff_8551_A1=41.53;
 sff_8551_A2=42.30;
@@ -52,6 +56,8 @@ module bay_attachment_holes()
     translate([-$epsilon,sff_8551_A2+sff_8551_A14,10+sff_8551_A11]) bay_attachment_hole();    
 }
 
+slot_stride = ((slot_525_width-2*wall_thickness_side)/(n_drives+1));
+
 difference() {
     cube([slot_525_width, 2*slot_525_height, adapter_length]);
     
@@ -69,12 +75,12 @@ difference() {
     
     // Slots for drives
     for ( i = [0 : (n_drives-1)] ){
-        translate([wall_thickness_side + (i+0.5)*((slot_525_width-2*wall_thickness_side)/(n_drives+1)) + drive_25_height/2, ((2*slot_525_height)-drive_25_width)/2, -$epsilon]) {
+        translate([wall_thickness_side + (i+0.5)*slot_stride + drive_25_height/2, ((2*slot_525_height)-drive_25_width)/2, -$epsilon]) {
             cube([drive_25_height, drive_25_width, drive_25_depth]);
-            translate([drive_25_c,$epsilon,drive_25_a]) rotate([90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
-            translate([drive_25_c,$epsilon,drive_25_b]) rotate([90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
-            translate([drive_25_c,drive_25_width-$epsilon,drive_25_a]) rotate([-90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
-            translate([drive_25_c,drive_25_width-$epsilon,drive_25_b]) rotate([-90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
+            translate([sff_8201_A23,$epsilon,sff_8201_A52]) rotate([90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
+            translate([sff_8201_A23,$epsilon,sff_8201_A53]) rotate([90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
+            translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A52]) rotate([-90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
+            translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A53]) rotate([-90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
         }
     }
     
@@ -100,7 +106,7 @@ difference() {
     
     // Coutouts in top and bottom (reduce material usage)
     for ( i = [0 : (n_drives-2)] ){
-        translate([wall_thickness_side + (i+1)*((slot_525_width-2*wall_thickness_side)/(n_drives+1)) + drive_25_height/2, 0, -$epsilon]) {
+        translate([wall_thickness_side + (i+1)*slot_stride + drive_25_height/2, 0, -$epsilon]) {
             hull() {
                 translate([6,-$epsilon,80]) rotate([-90,0,0]) cylinder(r=6, h=2*slot_525_height+2*$epsilon);
                 translate([6,-$epsilon,20+6]) rotate([-90,0,0]) cylinder(r=6, h=2*slot_525_height+2*$epsilon);
