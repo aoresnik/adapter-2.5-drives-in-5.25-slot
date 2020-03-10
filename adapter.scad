@@ -1,6 +1,5 @@
 
 // TODO: a bit of slack to accomodate tolerances
-// TODO: better alignment of slots
 
 $epsilon=0.01;
 $fn=20;
@@ -106,10 +105,10 @@ difference() {
     
     // Coutouts in top and bottom (reduce material usage)
     for ( i = [0 : (n_drives-2)] ){
-        translate([wall_thickness_side + (i+1)*slot_stride + drive_25_height/2, 0, -$epsilon]) {
+        translate([wall_thickness_side + (i+1.5)*slot_stride + drive_25_height/2, 0, -$epsilon]) {
             hull() {
-                translate([6,-$epsilon,80]) rotate([-90,0,0]) cylinder(r=6, h=2*slot_525_height+2*$epsilon);
-                translate([6,-$epsilon,20+6]) rotate([-90,0,0]) cylinder(r=6, h=2*slot_525_height+2*$epsilon);
+                translate([-6,-$epsilon,80]) rotate([-90,0,0]) cylinder(r=6, h=2*slot_525_height+2*$epsilon);
+                translate([-6,-$epsilon,20+6]) rotate([-90,0,0]) cylinder(r=6, h=2*slot_525_height+2*$epsilon);
             }
         }
     }
