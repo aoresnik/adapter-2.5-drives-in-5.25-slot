@@ -57,6 +57,12 @@ module bay_attachment_holes()
     translate([-$epsilon,sff_8551_A2+sff_8551_A14,10+sff_8551_A11]) bay_attachment_hole();    
 }
 
+module drive_attachment_hole()
+{
+    cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
+    translate([0,0,$epsilon + 1]) cylinder(r=4, h=wall_thickness_side + $epsilon - 1);
+}
+
 slot_stride = ((slot_525_width-2*wall_thickness_side)/(n_drives+1));
 
 difference() {
@@ -81,10 +87,10 @@ difference() {
             cube([drive_25_height, drive_25_width, drive_25_depth+2*$epsilon]);
             
             // Screw holes
-            translate([sff_8201_A23,$epsilon,sff_8201_A52]) rotate([90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
-            translate([sff_8201_A23,$epsilon,sff_8201_A53]) rotate([90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
-            translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A52]) rotate([-90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
-            translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A53]) rotate([-90,0,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
+            translate([sff_8201_A23,$epsilon,sff_8201_A52]) rotate([90,0,0]) drive_attachment_hole();
+            translate([sff_8201_A23,$epsilon,sff_8201_A53]) rotate([90,0,0]) drive_attachment_hole();
+            translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A52]) rotate([-90,0,0]) drive_attachment_hole();
+            translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A53]) rotate([-90,0,0]) drive_attachment_hole();
         }
     }
     
