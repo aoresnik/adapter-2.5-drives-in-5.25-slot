@@ -36,6 +36,7 @@ adapter_length=drive_25_depth;
 
 wall_thickness_side=3;
 wall_thickness_bottom_top=9;
+side_space=10;
 
 n_drives=6;
 
@@ -45,8 +46,14 @@ module bay_attachment_hole()
     translate([wall_thickness_side-square_nut_m3_d+$epsilon, -square_nut_m3_s/2-0.1, -square_nut_m3_s/2-0.1]) cube([square_nut_m3_d+$epsilon, square_nut_m3_s+0.2, square_nut_m3_s+0.2]);
 }
 
-module bay_attachment_holes()
+module side_cutouts()
 {
+    // Left and right spacing
+    translate([wall_thickness_side,wall_thickness_side,-$epsilon]) cube([side_space, 2*slot_525_height-2*wall_thickness_side, adapter_length+2*$epsilon]);
+    
+    // Holes (reduce material usage)
+    translate([-$epsilon,(2*slot_525_height)/2,adapter_length/2]) rotate([0,90,0]) cylinder(r=30, h=wall_thickness_side+2*$epsilon, $fn=40);
+    
     translate([-$epsilon,sff_8551_A13,10]) bay_attachment_hole();
     translate([-$epsilon,sff_8551_A13,10+sff_8551_A11]) bay_attachment_hole();
     translate([-$epsilon,sff_8551_A14,10]) bay_attachment_hole();
@@ -66,19 +73,19 @@ module drive_attachment_hole()
 slot_stride = ((slot_525_width-2*wall_thickness_side)/(n_drives+1));
 
 difference() {
+    // Base block
     cube([slot_525_width, 2*slot_525_height, adapter_length]);
     
-    translate([wall_thickness_side,wall_thickness_bottom_top,-$epsilon]) cube([slot_525_width-2*wall_thickness_side, 2*slot_525_height-2*wall_thickness_bottom_top, adapter_length+2*$epsilon]);
-
-    translate([wall_thickness_side,wall_thickness_side,-$epsilon]) cube([10, 2*slot_525_height-2*wall_thickness_side, adapter_length+2*$epsilon]);
-    translate([slot_525_width-wall_thickness_side-10,wall_thickness_side,-$epsilon]) cube([10, 2*slot_525_height-2*wall_thickness_side, adapter_length+2*$epsilon]);
+    // Main internal volume cutout
+    translate([wall_thickness_side+side_space,wall_thickness_bottom_top,-$epsilon]) cube([slot_525_width-2*wall_thickness_side-2*side_space, 2*slot_525_height-2*wall_thickness_bottom_top, adapter_length+2*$epsilon]);
     
-    translate([10+2*wall_thickness_side,-$epsilon,-$epsilon]) cube([slot_525_width-2*(10+2*wall_thickness_side), (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2+$epsilon, adapter_length+2*$epsilon]);
-    translate([10+2*wall_thickness_side,2*slot_525_height-(2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2,-$epsilon]) cube([slot_525_width-2*(10+2*wall_thickness_side), (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2+$epsilon, adapter_length+2*$epsilon]);
+    // Top and bottom cutouts
+    translate([side_space+2*wall_thickness_side,-$epsilon,-$epsilon]) cube([slot_525_width-2*(side_space+2*wall_thickness_side), (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2+$epsilon, adapter_length+2*$epsilon]);
+    translate([side_space+2*wall_thickness_side,2*slot_525_height-(2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2,-$epsilon]) cube([slot_525_width-2*(side_space+2*wall_thickness_side), (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2+$epsilon, adapter_length+2*$epsilon]);
 
     // Mounting holes
-    bay_attachment_holes();
-    translate([slot_525_width,0,0]) mirror([1,0,0]) bay_attachment_holes();
+    side_cutouts();
+    translate([slot_525_width,0,0]) mirror([1,0,0]) side_cutouts();
     
     // Slots for drives
     for ( i = [0 : (n_drives-1)] ){
@@ -94,14 +101,10 @@ difference() {
         }
     }
     
-    // Holes (reduce material usage)
-    translate([-$epsilon,(2*slot_525_height)/2,adapter_length/2]) rotate([0,90,0]) cylinder(r=30, h=wall_thickness_side+2*$epsilon, $fn=40);
-    translate([slot_525_width-$epsilon-wall_thickness_side,(2*slot_525_height)/2,adapter_length/2]) rotate([0,90,0]) cylinder(r=30, h=wall_thickness_side+2*$epsilon, $fn=40);
-    
     // Cutout in fins (reduce material usage)
-    translate([wall_thickness_side,0,0])
+    translate([wall_thickness_side+side_space-$epsilon,0,0])
        rotate([90,0,90])         
-       linear_extrude(height=slot_525_width-2*wall_thickness_side) 
+       linear_extrude(height=slot_525_width-2*wall_thickness_side-2*side_space+2*$epsilon) 
        polygon( points=[
               [10,0],
               [((2*slot_525_height)-drive_25_width)/2,10],
