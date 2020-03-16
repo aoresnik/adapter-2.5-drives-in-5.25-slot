@@ -37,6 +37,7 @@ adapter_length=drive_25_depth;
 wall_thickness_side=3;
 wall_thickness_bottom_top=9;
 side_space=10;
+side_slot_width=5;
 
 n_drives=6;
 
@@ -46,28 +47,44 @@ module bay_attachment_hole()
     translate([wall_thickness_side-square_nut_m3_d+$epsilon, -square_nut_m3_s/2-0.1, -square_nut_m3_s/2-0.1]) cube([square_nut_m3_d+$epsilon, square_nut_m3_s+0.2, square_nut_m3_s+0.2]);
 }
 
+module bay_attachment_holes()
+{
+    z_offset = (adapter_length-sff_8551_A11)/2;
+    
+    translate([-$epsilon,sff_8551_A13,z_offset]) bay_attachment_hole();
+    translate([-$epsilon,sff_8551_A13,z_offset+sff_8551_A11]) bay_attachment_hole();
+    translate([-$epsilon,sff_8551_A14,z_offset]) bay_attachment_hole();
+    translate([-$epsilon,sff_8551_A14,z_offset+sff_8551_A11]) bay_attachment_hole();
+
+    // Hole for reduction of material usage    
+    translate([-$epsilon,(sff_8551_A14+sff_8551_A13)/2,0])
+        hull() {
+            translate([0,0,adapter_length-26]) rotate([0,90,0]) cylinder(r=10, h=wall_thickness_side+2*$epsilon);
+            translate([0,0,26]) rotate([0,90,0]) cylinder(r=10, h=wall_thickness_side+2*$epsilon);
+        };
+}
+
 module side_cutouts()
 {
     // Left and right spacing
-    translate([wall_thickness_side,wall_thickness_side,-$epsilon]) cube([side_space, 2*slot_525_height-2*wall_thickness_side, adapter_length+2*$epsilon]);
+    // Slot moved for $slack upwards
+    translate([wall_thickness_side,wall_thickness_side,-$epsilon]) cube([side_space, sff_8551_A2-2*wall_thickness_side-side_slot_width+$slack, adapter_length+2*$epsilon]);
+
+    translate([wall_thickness_side,sff_8551_A2+wall_thickness_side+$slack,-$epsilon]) cube([side_space, 2*slot_525_height-sff_8551_A2-2*wall_thickness_side-$slack, adapter_length+2*$epsilon]);
     
+    translate([-$epsilon, sff_8551_A2-side_slot_width+$slack, -$epsilon]) cube([side_space+$epsilon, side_slot_width, adapter_length+2*$epsilon]);
+        
     // Holes (reduce material usage)
-    translate([-$epsilon,(2*slot_525_height)/2,adapter_length/2]) rotate([0,90,0]) cylinder(r=30, h=wall_thickness_side+2*$epsilon, $fn=40);
+    //#translate([-$epsilon,(2*slot_525_height)/2,adapter_length/2]) rotate([0,90,0]) cylinder(r=30, h=wall_thickness_side+2*$epsilon, $fn=40);
     
-    translate([-$epsilon,sff_8551_A13,10]) bay_attachment_hole();
-    translate([-$epsilon,sff_8551_A13,10+sff_8551_A11]) bay_attachment_hole();
-    translate([-$epsilon,sff_8551_A14,10]) bay_attachment_hole();
-    translate([-$epsilon,sff_8551_A14,10+sff_8551_A11]) bay_attachment_hole();
-    translate([-$epsilon,sff_8551_A2+sff_8551_A13,10]) bay_attachment_hole();
-    translate([-$epsilon,sff_8551_A2+sff_8551_A13,10+sff_8551_A11]) bay_attachment_hole();
-    translate([-$epsilon,sff_8551_A2+sff_8551_A14,10]) bay_attachment_hole();
-    translate([-$epsilon,sff_8551_A2+sff_8551_A14,10+sff_8551_A11]) bay_attachment_hole();    
+    bay_attachment_holes();
+    translate([0,sff_8551_A2,0]) bay_attachment_holes();
 }
 
 module drive_attachment_hole()
 {
     cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
-    translate([0,0,$epsilon + 1]) cylinder(r=4, h=wall_thickness_side + $epsilon - 1);
+    translate([0,0,$epsilon + 1]) cylinder(r=4.25, h=wall_thickness_side + $epsilon - 1);
 }
 
 slot_stride = ((slot_525_width-2*wall_thickness_side)/(n_drives+1));
@@ -83,7 +100,7 @@ difference() {
     translate([side_space+2*wall_thickness_side,-$epsilon,-$epsilon]) cube([slot_525_width-2*(side_space+2*wall_thickness_side), (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2+$epsilon, adapter_length+2*$epsilon]);
     translate([side_space+2*wall_thickness_side,2*slot_525_height-(2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2,-$epsilon]) cube([slot_525_width-2*(side_space+2*wall_thickness_side), (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2+$epsilon, adapter_length+2*$epsilon]);
 
-    // Mounting holes
+    // Side cutouts (simetrical along the x axis trough the middle plane)
     side_cutouts();
     translate([slot_525_width,0,0]) mirror([1,0,0]) side_cutouts();
     
