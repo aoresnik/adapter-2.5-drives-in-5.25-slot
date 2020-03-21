@@ -92,6 +92,9 @@ module drive_attachment_hole()
 
 slot_stride = ((slot_525_width-2*wall_thickness_side)/(n_drives+1));
 
+top_bottom_cutouts_x = slot_525_width-2*(side_space+2*wall_thickness_side);
+top_bottom_cutouts_y = (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2;
+
 difference() {
     // Base block
     cube([slot_525_width, 2*slot_525_height, adapter_length]);
@@ -100,8 +103,8 @@ difference() {
     translate([wall_thickness_side+side_space-$epsilon,wall_thickness_bottom_top,-$epsilon]) cube([slot_525_width-2*wall_thickness_side-2*side_space+2*$epsilon, 2*slot_525_height-2*wall_thickness_bottom_top, adapter_length+2*$epsilon]);
     
     // Top and bottom cutouts
-    translate([side_space+2*wall_thickness_side,-$epsilon,-$epsilon]) cube([slot_525_width-2*(side_space+2*wall_thickness_side), (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2+$epsilon, adapter_length+2*$epsilon]);
-    translate([side_space+2*wall_thickness_side,2*slot_525_height-(2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2,-$epsilon]) cube([slot_525_width-2*(side_space+2*wall_thickness_side), (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2+$epsilon, adapter_length+2*$epsilon]);
+    translate([side_space+2*wall_thickness_side,-$epsilon,-$epsilon]) cube([top_bottom_cutouts_x, top_bottom_cutouts_y+$epsilon, adapter_length+2*$epsilon]);
+    translate([side_space+2*wall_thickness_side,2*slot_525_height-top_bottom_cutouts_y,-$epsilon]) cube([top_bottom_cutouts_x, top_bottom_cutouts_y+$epsilon, adapter_length+2*$epsilon]);
 
     // Side cutouts (simetrical along the x axis trough the middle plane)
     side_cutouts();
@@ -180,6 +183,9 @@ module lock_plate()
         lock_plate_screw_hole();
         translate([slot_525_width,0,0]) mirror([1,0,0]) lock_plate_screw_hole();
     }
+    
+    translate([(slot_525_width-(top_bottom_cutouts_x-2*$slack))/2, wall_thickness_bottom_top-top_bottom_cutouts_y+$slack, wall_thickness_side])
+        cube([top_bottom_cutouts_x-2*$slack, top_bottom_cutouts_y-$slack, wall_thickness_side]);
 }
 
 if (SEMI_TOOLLESS)
