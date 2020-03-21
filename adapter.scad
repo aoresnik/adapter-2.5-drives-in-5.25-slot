@@ -7,11 +7,13 @@ $fn=20;
 // or unable to fit the adapter into the slot)
 $slack=0.2;
 
+SEMI_TOOLLESS=true;
+
 // Source: https://doc.xdevs.com/doc/Seagate/SFF-8201.PDF
 
 // max width according to notes (A4+A5)
 drive_25_width=70.10 + $slack;
-drive_25_height=9.50 + $slack;
+drive_25_height=7.50 + $slack;
 drive_25_depth=100.45 + $slack;
 
 sff_8201_A52=14 + $slack;
@@ -33,12 +35,12 @@ square_nut_m3_s=6+$slack;
 square_nut_m3_d=1.6;
 wall_thickness_square_nut=1.1;
 
-adapter_length=drive_25_depth;
-
 wall_thickness_side=2.2;
 wall_thickness_bottom_top=9;
 side_space=10;
 side_slot_width=5;
+
+adapter_length=SEMI_TOOLLESS ? (drive_25_depth + wall_thickness_side) : drive_25_depth;
 
 n_drives=6;
 
@@ -95,7 +97,7 @@ difference() {
     cube([slot_525_width, 2*slot_525_height, adapter_length]);
     
     // Main internal volume cutout
-    translate([wall_thickness_side+side_space,wall_thickness_bottom_top,-$epsilon]) cube([slot_525_width-2*wall_thickness_side-2*side_space, 2*slot_525_height-2*wall_thickness_bottom_top, adapter_length+2*$epsilon]);
+    translate([wall_thickness_side+side_space-$epsilon,wall_thickness_bottom_top,-$epsilon]) cube([slot_525_width-2*wall_thickness_side-2*side_space+2*$epsilon, 2*slot_525_height-2*wall_thickness_bottom_top, adapter_length+2*$epsilon]);
     
     // Top and bottom cutouts
     translate([side_space+2*wall_thickness_side,-$epsilon,-$epsilon]) cube([slot_525_width-2*(side_space+2*wall_thickness_side), (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2+$epsilon, adapter_length+2*$epsilon]);
@@ -111,11 +113,14 @@ difference() {
             // Drive
             cube([drive_25_height, drive_25_width, drive_25_depth+2*$epsilon]);
             
-            // Screw holes
-            translate([sff_8201_A23,$epsilon,sff_8201_A52]) rotate([90,0,0]) drive_attachment_hole();
-            translate([sff_8201_A23,$epsilon,sff_8201_A53]) rotate([90,0,0]) drive_attachment_hole();
-            translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A52]) rotate([-90,0,0]) drive_attachment_hole();
-            translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A53]) rotate([-90,0,0]) drive_attachment_hole();
+            if (!SEMI_TOOLLESS) 
+            {
+                // Screw holes
+                translate([sff_8201_A23,$epsilon,sff_8201_A52]) rotate([90,0,0]) drive_attachment_hole();
+                translate([sff_8201_A23,$epsilon,sff_8201_A53]) rotate([90,0,0]) drive_attachment_hole();
+                translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A52]) rotate([-90,0,0]) drive_attachment_hole();
+                translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A53]) rotate([-90,0,0]) drive_attachment_hole();
+            }
         }
     }
     
@@ -144,4 +149,44 @@ difference() {
             }
         }
     }
+}
+
+lock_plate_screw_post_x = side_space;
+lock_plate_screw_post_y = wall_thickness_bottom_top-wall_thickness_side;
+lock_plate_screw_post_z = square_nut_m3_d + 2*wall_thickness_square_nut;
+
+module lock_plate_screw_post()
+{
+    translate([wall_thickness_side-$epsilon, 2*slot_525_height-wall_thickness_side-lock_plate_screw_post_y+$epsilon, 0])
+        difference () {
+            cube([lock_plate_screw_post_x+2*$epsilon, lock_plate_screw_post_y+$epsilon, lock_plate_screw_post_z]);
+            translate([(lock_plate_screw_post_x-(square_nut_m3_s+$slack))/2, -$epsilon, wall_thickness_square_nut])
+                cube([square_nut_m3_s+$slack, square_nut_m3_s+$slack+$epsilon, square_nut_m3_d+$slack]);
+            translate([lock_plate_screw_post_x/2, (square_nut_m3_s+$slack)/2, -$epsilon])
+              cylinder(r=1.7, h=lock_plate_screw_post_z+2*$epsilon);
+        }
+}
+
+module lock_plate_screw_hole()
+{
+    translate([wall_thickness_side+lock_plate_screw_post_x/2, (square_nut_m3_s+$slack)/2, -$epsilon])
+        cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
+}
+
+module lock_plate()
+{
+    difference() {
+        cube([slot_525_width, wall_thickness_bottom_top, wall_thickness_side]);
+        lock_plate_screw_hole();
+        translate([slot_525_width,0,0]) mirror([1,0,0]) lock_plate_screw_hole();
+    }
+}
+
+if (SEMI_TOOLLESS)
+{
+    lock_plate_screw_post();
+    translate([slot_525_width,0,0]) mirror([1,0,0]) lock_plate_screw_post();
+    
+    translate([0, 2*slot_525_height + 10, 0])
+        lock_plate();
 }
