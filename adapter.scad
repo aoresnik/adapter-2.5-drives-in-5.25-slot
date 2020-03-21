@@ -30,11 +30,12 @@ sff_8551_A13=10.00 + $slack;
 sff_8551_A14=21.84 + $slack;
 
 square_nut_m3_s=6+$slack;
-square_nut_m3_d=1.6+$slack;
+square_nut_m3_d=1.6;
+wall_thickness_square_nut=1.1;
 
 adapter_length=drive_25_depth;
 
-wall_thickness_side=3;
+wall_thickness_side=2.2;
 wall_thickness_bottom_top=9;
 side_space=10;
 side_slot_width=5;
@@ -44,7 +45,7 @@ n_drives=6;
 module bay_attachment_hole()
 {
     rotate([0,90,0]) cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
-    translate([wall_thickness_side-square_nut_m3_d+$epsilon, -square_nut_m3_s/2-0.1, -square_nut_m3_s/2-0.1]) cube([square_nut_m3_d+$epsilon, square_nut_m3_s+0.2, square_nut_m3_s+0.2]);
+    translate([wall_thickness_square_nut+$epsilon, -square_nut_m3_s/2-0.1, -square_nut_m3_s/2-0.1]) cube([wall_thickness_side-wall_thickness_square_nut+$epsilon, square_nut_m3_s+0.2, square_nut_m3_s+0.2]);
 }
 
 module bay_attachment_holes()
