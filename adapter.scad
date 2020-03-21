@@ -7,7 +7,7 @@ $fn=20;
 // or unable to fit the adapter into the slot)
 $slack=0.2;
 
-SEMI_TOOLLESS=true;
+SEMI_TOOLLESS=false;
 
 // Source: https://doc.xdevs.com/doc/Seagate/SFF-8201.PDF
 
@@ -92,37 +92,22 @@ module drive_attachment_hole()
 
 slot_stride = ((slot_525_width-2*wall_thickness_side)/(n_drives+1));
 
-top_bottom_cutouts_x = slot_525_width-2*(side_space+2*wall_thickness_side);
-top_bottom_cutouts_y = (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2;
+top_bottom_spacing_x = slot_525_width-2*(side_space+2*wall_thickness_side);
+top_bottom_spacing_y = (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2;
 
-difference() {
-    // Base block
-    cube([slot_525_width, 2*slot_525_height, adapter_length]);
-    
-    // Main internal volume cutout
-    translate([wall_thickness_side+side_space-$epsilon,wall_thickness_bottom_top,-$epsilon]) cube([slot_525_width-2*wall_thickness_side-2*side_space+2*$epsilon, 2*slot_525_height-2*wall_thickness_bottom_top, adapter_length+2*$epsilon]);
-    
-    // Top and bottom cutouts
-    translate([side_space+2*wall_thickness_side,-$epsilon,-$epsilon]) cube([top_bottom_cutouts_x, top_bottom_cutouts_y+$epsilon, adapter_length+2*$epsilon]);
-    translate([side_space+2*wall_thickness_side,2*slot_525_height-top_bottom_cutouts_y,-$epsilon]) cube([top_bottom_cutouts_x, top_bottom_cutouts_y+$epsilon, adapter_length+2*$epsilon]);
-
-    // Side cutouts (simetrical along the x axis trough the middle plane)
-    side_cutouts();
-    translate([slot_525_width,0,0]) mirror([1,0,0]) side_cutouts();
-    
+module top_bottom_cutouts()
+{
     // Slots for drives
     for ( i = [0 : (n_drives-1)] ){
         translate([wall_thickness_side + (i+0.5)*slot_stride + drive_25_height/2, ((2*slot_525_height)-drive_25_width)/2, -$epsilon]) {
             // Drive
-            cube([drive_25_height, drive_25_width, drive_25_depth+2*$epsilon]);
+            cube([drive_25_height, 10, drive_25_depth+2*$epsilon]);
             
             if (!SEMI_TOOLLESS) 
             {
                 // Screw holes
                 translate([sff_8201_A23,$epsilon,sff_8201_A52]) rotate([90,0,0]) drive_attachment_hole();
                 translate([sff_8201_A23,$epsilon,sff_8201_A53]) rotate([90,0,0]) drive_attachment_hole();
-                translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A52]) rotate([-90,0,0]) drive_attachment_hole();
-                translate([sff_8201_A23,drive_25_width-$epsilon,sff_8201_A53]) rotate([-90,0,0]) drive_attachment_hole();
             }
         }
     }
@@ -136,10 +121,6 @@ difference() {
               [((2*slot_525_height)-drive_25_width)/2,10],
               [((2*slot_525_height)-drive_25_width)/2,adapter_length-10],
               [10,adapter_length],
-              [(2*slot_525_height)-10,adapter_length],
-              [((2*slot_525_height)-drive_25_width)/2+drive_25_width,adapter_length-10],
-              [((2*slot_525_height)-drive_25_width)/2+drive_25_width,10],
-              [(2*slot_525_height)-10,0],
           ]
        );
     
@@ -147,11 +128,31 @@ difference() {
     for ( i = [0 : (n_drives-2)] ){
         translate([wall_thickness_side + (i+1.5)*slot_stride + drive_25_height/2, 0, -$epsilon]) {
             hull() {
-                translate([-6,-$epsilon,80]) rotate([-90,0,0]) cylinder(r=6, h=2*slot_525_height+2*$epsilon);
-                translate([-6,-$epsilon,20+6]) rotate([-90,0,0]) cylinder(r=6, h=2*slot_525_height+2*$epsilon);
+                translate([-6,-$epsilon,80]) rotate([-90,0,0]) cylinder(r=6, h=wall_thickness_bottom_top+2*$epsilon);
+                translate([-6,-$epsilon,20+6]) rotate([-90,0,0]) cylinder(r=6, h=wall_thickness_bottom_top+2*$epsilon);
             }
         }
-    }
+    }    
+}
+
+difference() {
+    // Base block
+    cube([slot_525_width, 2*slot_525_height, adapter_length]);
+    
+    // Main internal volume cutout
+    translate([wall_thickness_side+side_space-$epsilon,wall_thickness_bottom_top,-$epsilon]) cube([slot_525_width-2*wall_thickness_side-2*side_space+2*$epsilon, 2*slot_525_height-2*wall_thickness_bottom_top, adapter_length+2*$epsilon]);
+    
+    // Top and bottom cutouts
+    translate([side_space+2*wall_thickness_side,-$epsilon,-$epsilon]) cube([top_bottom_spacing_x, top_bottom_spacing_y+$epsilon, adapter_length+2*$epsilon]);
+    translate([side_space+2*wall_thickness_side,2*slot_525_height-top_bottom_spacing_y,-$epsilon]) cube([top_bottom_spacing_x, top_bottom_spacing_y+$epsilon, adapter_length+2*$epsilon]);
+
+    // Side cutouts (simetrical along the x axis trough the middle plane)
+    side_cutouts();
+    translate([slot_525_width,0,0]) mirror([1,0,0]) side_cutouts();
+    
+    // Top and bottom cutouts (simetrical along the y axis trough the middle plane)
+    top_bottom_cutouts();
+    translate([0,2*slot_525_height,0]) mirror([0,1,0]) top_bottom_cutouts();
 }
 
 lock_plate_screw_post_x = side_space;
@@ -184,8 +185,8 @@ module lock_plate()
         translate([slot_525_width,0,0]) mirror([1,0,0]) lock_plate_screw_hole();
     }
     
-    translate([(slot_525_width-(top_bottom_cutouts_x-2*$slack))/2, wall_thickness_bottom_top-top_bottom_cutouts_y+$slack, wall_thickness_side])
-        cube([top_bottom_cutouts_x-2*$slack, top_bottom_cutouts_y-$slack, wall_thickness_side]);
+    translate([(slot_525_width-(top_bottom_spacing_x-2*$slack))/2, wall_thickness_bottom_top-top_bottom_spacing_y+$slack, wall_thickness_side])
+        cube([top_bottom_spacing_x-2*$slack, top_bottom_spacing_y-$slack, wall_thickness_side]);
 }
 
 if (SEMI_TOOLLESS)
