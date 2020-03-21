@@ -113,14 +113,16 @@ module top_bottom_cutouts()
     }
     
     // Cutout in fins (reduce material usage)
+    // Slot fins should cover the screw hole, because disks have more consistent thickness at this point
+    // (important in semi-toolless variant)
     translate([wall_thickness_side+side_space-$epsilon,0,0])
        rotate([90,0,90])         
        linear_extrude(height=slot_525_width-2*wall_thickness_side-2*side_space+2*$epsilon) 
        polygon( points=[
-              [10,0],
-              [((2*slot_525_height)-drive_25_width)/2,10],
-              [((2*slot_525_height)-drive_25_width)/2,adapter_length-10],
-              [10,adapter_length],
+              [15,0],
+              [((2*slot_525_height)-drive_25_width)/2,sff_8201_A52+5],
+              [((2*slot_525_height)-drive_25_width)/2,sff_8201_A53-5],
+              [15,adapter_length],
           ]
        );
     
@@ -128,11 +130,11 @@ module top_bottom_cutouts()
     for ( i = [0 : (n_drives-2)] ){
         translate([wall_thickness_side + (i+1.5)*slot_stride + drive_25_height/2, 0, -$epsilon]) {
             hull() {
-                translate([-6,-$epsilon,80]) rotate([-90,0,0]) cylinder(r=6, h=wall_thickness_bottom_top+2*$epsilon);
-                translate([-6,-$epsilon,20+6]) rotate([-90,0,0]) cylinder(r=6, h=wall_thickness_bottom_top+2*$epsilon);
+                translate([-6,-$epsilon,80]) rotate([-90,0,0]) cylinder(r=6, h=10+2*$epsilon);
+                translate([-6,-$epsilon,20+6]) rotate([-90,0,0]) cylinder(r=6, h=10+2*$epsilon);
             }
         }
-    }    
+    }
 }
 
 difference() {
