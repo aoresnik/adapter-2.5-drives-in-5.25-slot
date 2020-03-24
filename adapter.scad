@@ -179,21 +179,23 @@ module lock_plate_screw_post()
         }
 }
 
+lock_plate_y = (wall_thickness_bottom_top-(square_nut_m3_s+$slack)/2)*2;
+
 module lock_plate_screw_hole()
 {
-    translate([wall_thickness_side+lock_plate_screw_post_x/2, (square_nut_m3_s+$slack)/2, -$epsilon])
+    translate([wall_thickness_side+lock_plate_screw_post_x/2, lock_plate_y/2, -$epsilon])
         cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
 }
 
 module lock_plate()
 {
     difference() {
-        cube([slot_525_width, wall_thickness_bottom_top, wall_thickness_side]);
+        cube([slot_525_width, lock_plate_y, wall_thickness_side]);
         lock_plate_screw_hole();
         translate([slot_525_width,0,0]) mirror([1,0,0]) lock_plate_screw_hole();
     }
     
-    translate([(slot_525_width-(top_bottom_spacing_x-2*$slack))/2, wall_thickness_bottom_top-top_bottom_spacing_y+$slack, wall_thickness_side])
+    translate([(slot_525_width-(top_bottom_spacing_x-2*$slack))/2, lock_plate_y-top_bottom_spacing_y+$slack, wall_thickness_side])
         cube([top_bottom_spacing_x-2*$slack, top_bottom_spacing_y-$slack, 5]);
 }
 
