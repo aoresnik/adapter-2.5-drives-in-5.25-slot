@@ -1,11 +1,15 @@
 
 // Small distance added to compensate floating point problems when subtracting
-$epsilon=0.01;
+// 0.01 is too small, because some remains can be seen in OpenSCAD UI when rotating the object
+$epsilon=0.02;
 // Default round parts divisions
-$fn=20;
+$fn=25;
 // Slack to accomodate printing tolerances (try increasing if unable to fit drives
 // or unable to fit the adapter into the slot)
-$slack=0.2;
+$slack=0.1;
+
+$nut_trap_slack_s=0.5;
+$nut_trap_slack_d=0.2;
 
 $layer_thickness=0.2;
 
@@ -35,10 +39,10 @@ sff_8551_A14=21.84 + $slack;
 
 square_nut_m3_s=6+$slack;
 square_nut_m3_d=1.6;
-wall_thickness_square_nut=1.0;
+wall_thickness_square_nut=1.3;
 
-wall_thickness_side=2.2;
-wall_thickness_bottom_top=9;
+wall_thickness_side=2.1;
+wall_thickness_bottom_top=14;
 side_space=10;
 side_slot_width=5;
 
@@ -92,7 +96,7 @@ module drive_attachment_hole()
     translate([0,0,$epsilon + 1]) cylinder(r=4.25, h=wall_thickness_side + $epsilon - 1);
 }
 
-slot_stride = ((slot_525_width-2*wall_thickness_side)/(n_drives+1));
+slot_stride = ((slot_525_width-2*wall_thickness_side-2*side_space)/(n_drives));
 
 top_bottom_spacing_x = slot_525_width-2*(side_space+2*wall_thickness_side);
 top_bottom_spacing_y = (2*slot_525_height-(drive_25_width+2*wall_thickness_side))/2;
@@ -104,7 +108,7 @@ module top_bottom_cutouts(z_cutout_start)
 
     // Slots for drives
     for ( i = [0 : (n_drives-1)] ){
-        translate([wall_thickness_side + (i+0.5)*slot_stride + drive_25_height/2, ((2*slot_525_height)-drive_25_width)/2, -$epsilon]) {
+        translate([wall_thickness_side + side_space + i*slot_stride + slot_stride/2 - drive_25_height/2, ((2*slot_525_height)-drive_25_width)/2, -$epsilon]) {
             // Drive
             cube([drive_25_height, 10, drive_25_depth+2*$epsilon]);
             
@@ -120,23 +124,25 @@ module top_bottom_cutouts(z_cutout_start)
     // Cutout in fins (reduce material usage)
     // Slot fins should cover the screw hole, because disks have more consistent thickness at this point
     // (important in semi-toolless variant)
-    translate([wall_thickness_side+side_space-$epsilon,0,0])
+    a = wall_thickness_bottom_top-((2*slot_525_height)-drive_25_width)/2;
+    #translate([wall_thickness_side+side_space-$epsilon,0,0])
        rotate([90,0,90])         
        linear_extrude(height=slot_525_width-2*wall_thickness_side-2*side_space+2*$epsilon) 
        polygon( points=[
-              [15,0],
-              [((2*slot_525_height)-drive_25_width)/2,sff_8201_A52+5],
-              [((2*slot_525_height)-drive_25_width)/2,sff_8201_A53-5],
-              [15,adapter_length],
+              [wall_thickness_bottom_top+$epsilon,sff_8201_A52-a/2],
+              [((2*slot_525_height)-drive_25_width)/2,sff_8201_A52+a/2],
+              [((2*slot_525_height)-drive_25_width)/2,sff_8201_A53-a/2],
+              [wall_thickness_bottom_top+$epsilon,sff_8201_A53+a/2],
           ]
        );
     
     // Coutouts in top and bottom (reduce material usage)
-    for ( i = [0 : (n_drives-2)] ){
-        translate([wall_thickness_side + (i+1.5)*slot_stride + drive_25_height/2, 0, -$epsilon]) {
+    hole_r = (slot_stride-drive_25_height)/2;
+    for ( i = [1 : (n_drives-1)] ){
+        translate([wall_thickness_side + side_space + i*slot_stride + slot_stride/2 - drive_25_height/2, 0, -$epsilon]) {
             hull() {
-                translate([-6,-$epsilon,80]) rotate([-90,0,0]) cylinder(r=6, h=10+2*$epsilon);
-                translate([-6,-$epsilon,20+6]) rotate([-90,0,0]) cylinder(r=6, h=10+2*$epsilon);
+                translate([-hole_r ,-$epsilon,80]) rotate([-90,0,0]) cylinder(r=hole_r , h=10+2*$epsilon);
+                translate([-hole_r ,-$epsilon,20+6]) rotate([-90,0,0]) cylinder(r=hole_r , h=10+2*$epsilon);
             }
         }
     }
@@ -168,8 +174,8 @@ module lock_plate_screw_post()
     translate([wall_thickness_side-$epsilon, 2*slot_525_height-wall_thickness_side-lock_plate_screw_post_y+$epsilon, 0])
         difference () {
             cube([lock_plate_screw_post_x+2*$epsilon, lock_plate_screw_post_y+$epsilon, lock_plate_screw_post_z]);
-            translate([(lock_plate_screw_post_x-(square_nut_m3_s+$slack))/2, -$epsilon, wall_thickness_square_nut])
-                cube([square_nut_m3_s+$slack, square_nut_m3_s+$slack+$epsilon, square_nut_m3_d+$slack]);
+            translate([(lock_plate_screw_post_x-(square_nut_m3_s+$nut_trap_slack_s))/2, -$epsilon, wall_thickness_square_nut])
+                cube([square_nut_m3_s+$nut_trap_slack_s, square_nut_m3_s+$nut_trap_slack_s+$epsilon, square_nut_m3_d+$nut_trap_slack_d]);
             // Hole below square nut trap
             translate([lock_plate_screw_post_x/2, (square_nut_m3_s+$slack)/2, -$epsilon])
               cylinder(r=1.7, h=wall_thickness_square_nut+2*$epsilon);
@@ -179,11 +185,11 @@ module lock_plate_screw_post()
         }
 }
 
-lock_plate_y = (wall_thickness_bottom_top-(square_nut_m3_s+$slack)/2)*2;
+lock_plate_y = wall_thickness_bottom_top;
 
 module lock_plate_screw_hole()
 {
-    translate([wall_thickness_side+lock_plate_screw_post_x/2, lock_plate_y/2, -$epsilon])
+    translate([wall_thickness_side+lock_plate_screw_post_x/2, (square_nut_m3_s+$slack)/2, -$epsilon])
         cylinder(r=1.7, h=wall_thickness_side+2*$epsilon);
 }
 
