@@ -21,3 +21,14 @@ Print in a material with higher temperature resistance, such as PETG or better. 
 A semi toolless variant as installed in a server case, relieving the shortage of 2.5" slots:
 
 ![Semi-toolless 2.5-in-5.25 adapter in use](images/adapter-semi-toolless2.jpg)
+
+Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
+
+This work is licensed under a
+[Creative Commons Attribution 4.0 International License][cc-by].
+
+[![CC BY 4.0][cc-by-image]][cc-by]
+
+[cc-by]: http://creativecommons.org/licenses/by/4.0/
+[cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
+[cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
