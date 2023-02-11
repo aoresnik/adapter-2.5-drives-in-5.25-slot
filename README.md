@@ -6,11 +6,11 @@ This is an adapter that allows installing 6 or more (customizable) small 2.5" st
 
 Two variants are included:
 
-- Regular variant: drives can be fitted into the adapter with screws. This is recommended if you want to use this adapter with HDD drives, because these cause vibration and would rattle in the "semi toolless" variant.
+- Regular variant ([STL file](adapter.stl)): drives can be fitted into the adapter with screws. This is recommended if you want to use this adapter with HDD drives, because these cause vibration and would rattle in the "semi toolless" variant.
 
   ![2.5-in-5.25 adapter rendering](adapter.png)
 
-- "Semi toolless" variant: all drives are secured with a bracket that is kept in place with two M3 screws (that screw into two M3 square nuts that you place in the nut traps). This allows adding and removing drives without removing the adapter from the computer case, if there's enough room to maneuver around it. This is not completely toolless, so I call this variant "semi toolless". Hex screws are recoommended, because there are hex screw drivers available that can work at a slight angle, which can make access easier while the adapter is in the computer case. This version is recommended for SSD drives only.
+- "Semi toolless" variant ([STL file](adapter-semi-toolless.stl)): all drives are secured with a bracket that is kept in place with two M3 screws (that screw into two M3 square nuts that you place in the nut traps). This allows adding and removing drives without removing the adapter from the computer case, if there's enough room to maneuver around it. This is not completely toolless, so I call this variant "semi toolless". Hex screws are recoommended, because there are hex screw drivers available that can work at a slight angle, which can make access easier while the adapter is in the computer case. This version is recommended for SSD drives only.
 
   ![Semi-toolless 2.5-in-5.25 adapter rendering](adapter-semi-toolless.png)
 
