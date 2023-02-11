@@ -13,13 +13,17 @@ $nut_trap_slack_d=0.2;
 
 $layer_thickness=0.2;
 
-SEMI_TOOLLESS=false;
+SEMI_TOOLLESS=true;
 
 // Source: https://doc.xdevs.com/doc/Seagate/SFF-8201.PDF
 
+// The thickness (height) of the drive. Standard allows many different thicknesses
+// Common values are 7.0 for SSD and 9.50 for HDD
+sff_8201_A1=7.50;
+
 // max width according to notes (A4+A5)
 drive_25_width=70.10 + $slack;
-drive_25_height=7.50 + $slack;
+drive_25_height=sff_8201_A1 + $slack;
 drive_25_depth=100.45 + $slack;
 
 sff_8201_A52=14 + $slack;
